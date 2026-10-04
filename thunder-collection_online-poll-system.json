@@ -1,0 +1,173 @@
+{
+  "clientName": "Thunder Client",
+  "collectionName": "Online Poll and Survey API",
+  "collectionId": "poll-system-thunder-collection",
+  "dateExported": "2026-10-04",
+  "version": "1.1",
+  "folders": [
+    {
+      "_id": "folder_auth",
+      "name": "1. Authentication",
+      "containerId": "",
+      "created": "2026-10-04T12:00:00.000Z"
+    },
+    {
+      "_id": "folder_polls",
+      "name": "2. Polls CRUD & Management",
+      "containerId": "",
+      "created": "2026-10-04T12:00:00.000Z"
+    },
+    {
+      "_id": "folder_voting",
+      "name": "3. Voting & Prevention",
+      "containerId": "",
+      "created": "2026-10-04T12:00:00.000Z"
+    },
+    {
+      "_id": "folder_results",
+      "name": "4. Aggregation Results",
+      "containerId": "",
+      "created": "2026-10-04T12:00:00.000Z"
+    }
+  ],
+  "requests": [
+    {
+      "_id": "req_register",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_auth",
+      "name": "Register New User",
+      "url": "{{BASE_URL}}/api/auth/register",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Sarah Miller\",\n  \"email\": \"sarah@example.com\",\n  \"password\": \"password123\"\n}"
+      }
+    },
+    {
+      "_id": "req_login_owner",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_auth",
+      "name": "Login as Poll Creator (Liceria)",
+      "url": "{{BASE_URL}}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"liceria@example.com\",\n  \"password\": \"password123\"\n}"
+      }
+    },
+    {
+      "_id": "req_login_voter",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_auth",
+      "name": "Login as Regular Voter (Alex)",
+      "url": "{{BASE_URL}}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"alex@example.com\",\n  \"password\": \"password123\"\n}"
+      }
+    },
+    {
+      "_id": "req_get_me",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_auth",
+      "name": "Get Current Authenticated User",
+      "url": "{{BASE_URL}}/api/auth/me",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{AUTH_TOKEN}}"
+        }
+      ]
+    },
+    {
+      "_id": "req_create_poll",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_polls",
+      "name": "Create Poll (POST /polls)",
+      "url": "{{BASE_URL}}/api/polls",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{AUTH_TOKEN}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"title\": \"Quiz Time\",\n  \"brand\": \"Liceria & Co.\",\n  \"question\": \"Which color do you like the most?\",\n  \"options\": [\n    \"Red\",\n    \"Blue\",\n    \"Green\",\n    \"Yellow\"\n  ],\n  \"category\": \"Lifestyle\"\n}"
+      }
+    },
+    {
+      "_id": "req_get_polls",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_polls",
+      "name": "Get All Polls (GET /polls)",
+      "url": "{{BASE_URL}}/api/polls",
+      "method": "GET"
+    },
+    {
+      "_id": "req_get_single_poll",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_polls",
+      "name": "Get Single Poll by ID",
+      "url": "{{BASE_URL}}/api/polls/{{POLL_ID}}",
+      "method": "GET"
+    },
+    {
+      "_id": "req_cast_vote",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_voting",
+      "name": "Vote on Poll (POST /polls/:id/vote)",
+      "url": "{{BASE_URL}}/api/polls/{{POLL_ID}}/vote",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{AUTH_TOKEN}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"optionId\": \"{{OPTION_ID}}\"\n}"
+      }
+    },
+    {
+      "_id": "req_close_poll",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_polls",
+      "name": "Close Poll (PATCH /polls/:id/close - Owner Only)",
+      "url": "{{BASE_URL}}/api/polls/{{POLL_ID}}/close",
+      "method": "PATCH",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{AUTH_TOKEN}}"
+        }
+      ]
+    },
+    {
+      "_id": "req_reopen_poll",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_polls",
+      "name": "Reopen Poll (PATCH /polls/:id/reopen - Owner Only)",
+      "url": "{{BASE_URL}}/api/polls/{{POLL_ID}}/reopen",
+      "method": "PATCH",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{AUTH_TOKEN}}"
+        }
+      ]
+    },
+    {
+      "_id": "req_get_results",
+      "colId": "poll-system-thunder-collection",
+      "containerId": "folder_results",
+      "name": "Get Aggregation Results (GET /polls/:id/results)",
+      "url": "{{BASE_URL}}/api/polls/{{POLL_ID}}/results",
+      "method": "GET"
+    }
+  ]
+}

@@ -1,0 +1,303 @@
+{
+  "info": {
+    "_postman_id": "9a38f328-76c2-4a0e-bc60-1e5f8f8b78d2",
+    "name": "Online Poll and Survey API - Case Study 166",
+    "description": "Complete collection for Online Poll and Survey Creation Tool backend. Includes User Auth, Poll CRUD, Duplicate Vote Prevention, Ownership-based Authorization for Closing Polls, and MongoDB Aggregation Results.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pollId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "optionId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login as Owner (Liceria & Co.)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"liceria@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as Voter (Alex Johnson)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alex@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Polls",
+      "item": [
+        {
+          "name": "Create Poll (POST /polls)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.poll && res.poll._id) {",
+                  "    pm.collectionVariables.set('pollId', res.poll._id);",
+                  "    pm.collectionVariables.set('optionId', res.poll.options[0]._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Quiz Time\",\n  \"brand\": \"Liceria & Co.\",\n  \"question\": \"Which color do you like the most?\",\n  \"options\": [\"Red\", \"Blue\", \"Green\", \"Yellow\"],\n  \"category\": \"Lifestyle\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/polls",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "polls"]
+            }
+          }
+        },
+        {
+          "name": "Get All Polls (GET /polls)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/polls",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "polls"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Poll by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/polls/{{pollId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "polls", "{{pollId}}"]
+            }
+          }
+        },
+        {
+          "name": "Close Poll (PATCH /polls/:id/close - Owner Only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/polls/{{pollId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "polls", "{{pollId}}", "close"]
+            }
+          }
+        },
+        {
+          "name": "Reopen Poll (PATCH /polls/:id/reopen - Owner Only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/polls/{{pollId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "polls", "{{pollId}}", "reopen"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Voting",
+      "item": [
+        {
+          "name": "Cast Vote (POST /polls/:id/vote)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"optionId\": \"{{optionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/polls/{{pollId}}/vote",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "polls", "{{pollId}}", "vote"]
+            }
+          }
+        },
+        {
+          "name": "Prevent Duplicate Vote (Cast Second Time)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"optionId\": \"{{optionId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/polls/{{pollId}}/vote",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "polls", "{{pollId}}", "vote"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Results (Aggregation)",
+      "item": [
+        {
+          "name": "Get Results Breakdown (GET /polls/:id/results)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/polls/{{pollId}}/results",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "polls", "{{pollId}}", "results"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
